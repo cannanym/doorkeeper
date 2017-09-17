@@ -331,4 +331,18 @@ describe Doorkeeper, 'configuration' do
       it { expect(Doorkeeper.configuration.base_controller).to eq('ApplicationController') }
     end
   end
+
+  describe "api_mode" do
+    it "is false by default" do
+      expect(subject.api_mode).to be_falsey
+    end
+
+    it "can change the value" do
+      Doorkeeper.configure do
+        orm DOORKEEPER_ORM
+        api_mode
+      end
+      expect(subject.api_mode).to be_truthy
+    end
+  end
 end

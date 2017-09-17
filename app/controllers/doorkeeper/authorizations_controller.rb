@@ -6,12 +6,19 @@ module Doorkeeper
       if pre_auth.authorizable?
         if skip_authorization? || matching_token?
           auth = authorization.authorize
-          redirect_to auth.redirect_uri
+          redirect_or_render auth
+        elsif Doorkeeper.configuration.api_mode
+          render json: @pre_auth
         else
           render :new
         end
       else
-        render :error
+        if Doorkeeper.configuration.api_mode
+          render json: @pre_auth.error_response.body[:error_description],
+                 status: :bad_request
+        else
+          render :error
+        end
       end
     end
 
@@ -33,7 +40,12 @@ module Doorkeeper
     end
 
     def redirect_or_render(auth)
-      if auth.redirectable?
+      if auth.redirectable? && Doorkeeper.configuration.api_mode
+        render(
+          json: { status: :redirect, redirect_uri: auth.redirect_uri },
+          status: auth.status
+        )
+      elsif auth.redirectable?
         redirect_to auth.redirect_uri
       else
         render json: auth.body, status: auth.status

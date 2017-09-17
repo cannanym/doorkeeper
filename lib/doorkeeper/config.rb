@@ -152,6 +152,12 @@ doorkeeper.
       def base_controller(base_controller)
         @config.instance_variable_set('@base_controller', base_controller)
       end
+
+      # Use an API mode for applications generated with --api argument
+      # It will skip applications controller, disable forgery protection
+      def api_mode
+        @config.instance_variable_set("@api_mode", true)
+      end
     end
 
     module Option
@@ -249,6 +255,7 @@ doorkeeper.
            default: 'ActionController::Base'
 
     attr_reader :reuse_access_token
+    attr_reader :api_mode
 
     def refresh_token_enabled?
       @refresh_token_enabled ||= false
